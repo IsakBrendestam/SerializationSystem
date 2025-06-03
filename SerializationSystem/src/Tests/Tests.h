@@ -2,6 +2,5 @@
 
 namespace Test 
 {
-	bool GetInformation();
-	bool Serilization();
+	bool RunTests();
 }
