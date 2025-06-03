@@ -15,3 +15,4 @@ Project/imgui.ini
 *.cso
 /Project/res/temp
 Project/tracy-profiler.exe.lnk
+/SerializationSystem/x64
