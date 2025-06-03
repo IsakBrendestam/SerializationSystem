@@ -20,7 +20,7 @@ struct member_t : member_interface
 	{
 		const TClass* obj = static_cast<const TClass*>(instance);
 		const TMember& value = obj->*m_ptr;
-		out << m_name << ": " << value << "\n";
+		out << m_name << ":" << value << "\n"; // NOTE: This format can be changed
 	}
 
 private:
@@ -42,5 +42,5 @@ std::unique_ptr<member_interface> member_instance(char const* name, TMember TCla
 	};																\
 
 
-#define MEMBER(name, desc) \
+#define MEMBER(name) \
 	member_instance(#name, &self_t::name),

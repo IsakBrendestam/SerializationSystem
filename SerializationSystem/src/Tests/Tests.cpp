@@ -12,8 +12,8 @@ public:
     int age = 24;
 
     INTROSPECTION(TestClass, \
-        MEMBER(name, "my name")
-        MEMBER(age, "age")
+        MEMBER(name)
+        MEMBER(age)
     );
 };
 
