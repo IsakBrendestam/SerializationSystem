@@ -1,6 +1,8 @@
 #include "Tests.h"
 
 #include <iostream>
+#include <ostream>
+#include <sstream>
 #include "../Intospection.h"
 
 class TestClass 
@@ -27,10 +29,18 @@ bool GetInformation()
 bool Serilization()
 {
     TestClass t;
-    for (auto& data : TestClass::GetData())
-        data->Serialize(std::cout, &t);
+    std::stringstream ssTest, ssValid;
 
-    return false;
+    for (auto& data : TestClass::GetData())
+        data->Serialize(ssTest, &t);
+
+    ssValid << "name:" << t.name << "\n"
+            << "age:" << t.age << "\n"
+            << "city:" << t.city << "\n";
+
+    std::cout << ssTest.str();
+
+    return ssTest.str() == ssValid.str();
 }
 
 bool Test::RunTests()
