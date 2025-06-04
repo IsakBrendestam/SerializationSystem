@@ -90,3 +90,14 @@ private:
 
 #define MEMBER(name) \
 	member_instance(#name, &self_t::name),
+
+#define SERIALIZEBLE(type) \
+	std::ostream& operator<< (std::ostream& out, const type &obj) \
+	{						\
+		out << "{\n"; \
+		for (auto& data : type::GetData()) \
+			data->Serialize(out, &obj); \
+		return out << "}";		\
+	}						\
+	
+
