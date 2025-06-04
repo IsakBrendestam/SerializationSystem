@@ -10,10 +10,12 @@ public:
 
     std::string name = "Isak";
     int age = 24;
+    std::string city = "Karlskrona";
 
     INTROSPECTION(TestClass,
         MEMBER(name)
         MEMBER(age)
+        MEMBER(city)
     );
 };
 
@@ -25,8 +27,8 @@ bool GetInformation()
 bool Serilization()
 {
     TestClass t;
-    for (int i = 0; i < 2; i++)
-        TestClass::data[i]->Serialize(std::cout, &t);
+    for (auto& data : TestClass::GetData())
+        data->Serialize(std::cout, &t);
 
     return false;
 }

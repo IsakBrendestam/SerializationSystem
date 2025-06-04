@@ -70,18 +70,22 @@ public:
 	};
 
 	Iterator begin() { return Iterator(&m_data[0]); }
-	Iterator end() { return Iterator(&m_data[m_size - 1]); }
+	Iterator end() { return Iterator(&m_data[m_size]); }
 
 private:
 	std::unique_ptr<member_interface>* m_data;
 	size_t m_size;
 };
 
-#define INTROSPECTION(type, members)								\
-	typedef type self_t;											\
-	static inline std::unique_ptr<member_interface> data[] = {		\
-		members														\
-	};																\
+#define INTROSPECTION(type, members)									\
+	typedef type self_t;												\
+	static inline member_holder GetData()								\
+	{																	\
+		static std::unique_ptr<member_interface> data[] = {				\
+			members														\
+		};																\
+		return member_holder(data, sizeof(data)/sizeof(data[0]));		\
+	}																	\
 
 
 #define MEMBER(name) \
