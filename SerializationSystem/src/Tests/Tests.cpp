@@ -11,7 +11,7 @@ public:
     std::string name = "Isak";
     int age = 24;
 
-    INTROSPECTION(TestClass, \
+    INTROSPECTION(TestClass,
         MEMBER(name)
         MEMBER(age)
     );
