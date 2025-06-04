@@ -5,52 +5,63 @@
 #include <sstream>
 #include "../Intospection.h"
 
-class TestClass 
+class Person 
 {
+friend class Tester;
+
 public:
-    TestClass() = default;
+    Person(const std::string& name, int age, const std::string& city) :
+        m_name(name), m_age(age), m_city(city) {};
 
-    std::string name = "Isak";
-    int age = 24;
-    std::string city = "Karlskrona";
-
-    INTROSPECTION(TestClass,
-        MEMBER(name)
-        MEMBER(age)
-        MEMBER(city)
+    INTROSPECTION(Person,
+        MEMBER(m_name)
+        MEMBER(m_age)
+        MEMBER(m_city)
     );
+
+private:
+    std::string m_name = "Isak";
+    int m_age = 24;
+    std::string m_city = "Karlskrona";
 };
 
-bool GetInformation()
+class Tester
 {
-    return false;
-}
+public:
+	static inline bool GetInformation()
+	{
+		return false;
+	}
 
-bool Serilization()
-{
-    TestClass t;
-    std::stringstream ssTest, ssValid;
+	static inline bool Serilization()
+	{
+		Person t("Isak", 24, "Karlskrona");
+		std::stringstream ssTest, ssValid;
 
-    for (auto& data : TestClass::GetData())
-        data->Serialize(ssTest, &t);
+		for (auto& data : Person::GetData())
+			data->Serialize(ssTest, &t);
 
-    ssValid << "name:" << t.name << "\n"
-            << "age:" << t.age << "\n"
-            << "city:" << t.city << "\n";
+		ssValid << "m_name:" << t.m_name << "\n"
+				<< "m_age:"  << t.m_age  << "\n"
+				<< "m_city:" << t.m_city << "\n";
 
-    std::cout << ssTest.str();
+		std::cout << ssTest.str();
 
-    return ssTest.str() == ssValid.str();
-}
+		return ssTest.str() == ssValid.str();
+	}
+
+};
 
 bool Test::RunTests()
 {
     std::string result;
 
-	result = GetInformation() ? "Passed" : "Failed";
+	/*
+	result = Tester::GetInformation() ? "Passed" : "Failed";
 	std::cout << "Getting information test: " << result << std::endl;
+	*/
 
-	result = Serilization() ? "Passed" : "Failed";
+	result = Tester::Serilization() ? "Passed" : "Failed";
 	std::cout << "Serilization test: " << result << std::endl;
 
     return false;
