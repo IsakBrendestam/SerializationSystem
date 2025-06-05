@@ -19,7 +19,7 @@ struct member_t : member_interface
 
 	inline char const* Name() const override{ return m_name; }
 
-	inline void Serialize(std::ostream& out, const void* instance) const
+	inline void Serialize(std::ostream& out, const void* instance) const override
 	{
 		const TClass* obj = static_cast<const TClass*>(instance);
 		const TMember& value = obj->*m_ptr;

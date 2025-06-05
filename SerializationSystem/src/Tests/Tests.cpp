@@ -25,10 +25,12 @@ private:
     int m_age = 24;
     std::string m_city = "Karlskrona";
 };
-SERIALIZEBLE(Person)
+SERIALIZEBLE(Person);
 
 class PersonPair
 {
+friend class Tester;
+
 public:
 	PersonPair(const Person& p1, const Person& p2) :
 		m_p1(p1), m_p2(p2) {}
@@ -42,7 +44,10 @@ public:
 private:
 	Person m_p1, m_p2;
 };
+SERIALIZEBLE(PersonPair);
 
+Person p1("Isak", 24, "Karlskrona"),
+	   p2("Matilda", 23, "Karlskrona");
 
 class Tester
 {
@@ -54,15 +59,14 @@ public:
 
 	static inline bool SerilizationDefault()
 	{
-		Person t("Isak", 24, "Karlskrona");
 		std::stringstream ssTest, ssValid;
 
 		for (auto& data : Person::GetData())
-			data->Serialize(ssTest, &t);
+			data->Serialize(ssTest, &p1);
 
-		ssValid << "m_name:" << t.m_name << "\n"
-				<< "m_age:"  << t.m_age  << "\n"
-				<< "m_city:" << t.m_city << "\n";
+		ssValid << "m_name:" << p1.m_name << "\n"
+				<< "m_age:"  << p1.m_age  << "\n"
+				<< "m_city:" << p1.m_city << "\n";
 
 		std::cout << ssTest.str();
 
@@ -71,11 +75,25 @@ public:
 
 	static inline bool SerilizationClassMember()
 	{
-		PersonPair pp({ "Isak", 24, "Karlskrona" }, { "Matilda", 23, "Karlskrona" });
+		std::stringstream ssTest, ssValid;
+		PersonPair pp(p1, p2);
 		for (auto& data : PersonPair::GetData())
-			data->Serialize(std::cout, &pp);
+			data->Serialize(ssTest, &pp);
 
-		return false;
+		ssValid << "m_p1:{\n"
+				<< "m_name:" << p1.m_name << "\n"
+				<< "m_age:" << p1.m_age << "\n"
+				<< "m_city:" << p1.m_city << "\n"
+				<< "}\n"
+				<< "m_p2:{\n"
+				<< "m_name:" << p2.m_name << "\n"
+				<< "m_age:" << p2.m_age << "\n"
+				<< "m_city:" << p2.m_city << "\n"
+				<< "}\n";
+
+		std::cout << ssValid.str();
+
+		return ssTest.str() == ssValid.str();
 	}
 
 };
