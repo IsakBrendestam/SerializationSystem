@@ -2,6 +2,7 @@
 
 #include <iterator>
 #include <cstddef>
+#include <any>
 
 struct member_interface
 {
@@ -9,6 +10,7 @@ struct member_interface
 
 	virtual char const* Name() const = 0;
 	virtual void Serialize(std::ostream& out, const void* instance) const = 0;
+	virtual void Deserialize(std::istream& in, void* instance) const = 0;
 };
 
 template<typename TClass, typename TMember>
@@ -17,13 +19,29 @@ struct member_t : member_interface
 	member_t(char const* name, TMember TClass::*ptr) :
 		m_name(name), m_ptr(ptr){}
 
-	inline char const* Name() const override{ return m_name; }
+	inline char const* Name() const override { return m_name; }
 
 	inline void Serialize(std::ostream& out, const void* instance) const override
 	{
 		const TClass* obj = static_cast<const TClass*>(instance);
 		const TMember& value = obj->*m_ptr;
 		out << m_name << ":" << value << "\n"; // NOTE: This format can be changed
+	}
+
+	inline void Deserialize(std::istream& in, void* instance) const override
+	{
+		TClass* obj = static_cast<TClass*>(instance);
+		std::string label;
+		if (!std::getline(in, label, ':'))
+			return;
+
+		// Optional: trim whitespace or validate `label == m_name`
+
+		TMember value;
+		in >> value;
+		in.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // skip to next line
+
+		obj->*m_ptr = value;
 	}
 
 private:
@@ -91,13 +109,27 @@ private:
 #define MEMBER(name) \
 	member_instance(#name, &self_t::name),
 
-#define SERIALIZEBLE(type) \
-	std::ostream& operator<< (std::ostream& out, const type &obj) \
-	{						\
-		out << "{\n"; \
-		for (auto& data : type::GetData()) \
-			data->Serialize(out, &obj); \
-		return out << "}";		\
-	}						\
-	
+#define SERIALIZEBLE(type)												\
+	std::ostream& operator<< (std::ostream& out, const type &obj)		\
+	{																	\
+		out << "{\n";													\
+		for (auto& data : type::GetData())								\
+			data->Serialize(out, &obj);									\
+		return out << "}";												\
+	}																	\
+																		\
+	std::istream& operator>>(std::istream& in, type& obj)				\
+	{																	\
+		std::string openBrace;											\
+		std::getline(in, openBrace);									\
+		if (openBrace != "{") {											\
+			in.setstate(std::ios::failbit);								\
+			return in;													\
+		}																\
+																		\
+		for (auto& member : type::GetData())							\
+			member->Deserialize(in, &obj);								\
+																		\
+		return in;														\
+	}																	\
 

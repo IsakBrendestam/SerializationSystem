@@ -21,9 +21,9 @@ public:
     );
 
 private:
-    std::string m_name = "Isak";
-    int m_age = 24;
-    std::string m_city = "Karlskrona";
+    std::string m_name = "";
+    int m_age = -1;
+    std::string m_city = "";
 };
 SERIALIZEBLE(Person);
 
@@ -49,6 +49,8 @@ SERIALIZEBLE(PersonPair);
 Person p1("Isak", 24, "Karlskrona"),
 	   p2("Matilda", 23, "Karlskrona");
 
+std::stringstream ssTest1, ssTest2;
+
 class Tester
 {
 public:
@@ -59,26 +61,26 @@ public:
 
 	static inline bool SerilizationDefault()
 	{
-		std::stringstream ssTest, ssValid;
+		std::stringstream ssValid;
 
 		for (auto& data : Person::GetData())
-			data->Serialize(ssTest, &p1);
+			data->Serialize(ssTest1, &p1);
 
 		ssValid << "m_name:" << p1.m_name << "\n"
 				<< "m_age:"  << p1.m_age  << "\n"
 				<< "m_city:" << p1.m_city << "\n";
 
-		std::cout << ssTest.str();
+		std::cout << ssTest1.str();
 
-		return ssTest.str() == ssValid.str();
+		return ssTest1.str() == ssValid.str();
 	}
 
 	static inline bool SerilizationClassMember()
 	{
-		std::stringstream ssTest, ssValid;
+		std::stringstream ssValid;
 		PersonPair pp(p1, p2);
 		for (auto& data : PersonPair::GetData())
-			data->Serialize(ssTest, &pp);
+			data->Serialize(ssTest2, &pp);
 
 		ssValid << "m_p1:{\n"
 				<< "m_name:" << p1.m_name << "\n"
@@ -91,9 +93,25 @@ public:
 				<< "m_city:" << p2.m_city << "\n"
 				<< "}\n";
 
-		std::cout << ssValid.str();
+		std::cout << ssTest2.str();
 
-		return ssTest.str() == ssValid.str();
+		return ssTest2.str() == ssValid.str();
+	}
+
+	static inline bool DeserilizationDefault()
+	{
+		Person p3;
+		for (auto& data : Person::GetData())
+			data->Deserialize(ssTest1, &p3);
+
+		std::cout << p3 << std::endl;
+
+		bool pass = true;
+		p3.m_name != p1.m_name	? pass = false :
+		p3.m_age  != p1.m_age	? pass = false :
+		p3.m_city != p1.m_city	? pass = false : pass = true;
+
+		return pass;
 	}
 
 };
@@ -107,13 +125,22 @@ bool Test::RunTests()
 	std::cout << "Getting information test: " << result << std::endl;
 	*/
 
+	std::cout << "--------------------------------------------------" << std::endl;
 	result = Tester::SerilizationDefault() ? "Passed" : "Failed";
 	std::cout << std::endl 
 			  << "--------------------------------------------------" << std::endl
 			  << "Serilization Default test: (" << result << ")" << std::endl
 			  << "--------------------------------------------------" << std::endl;
 
+	std::cout << "--------------------------------------------------" << std::endl;
 	result = Tester::SerilizationClassMember() ? "Passed" : "Failed";
+	std::cout << std::endl 
+			  << "--------------------------------------------------" << std::endl
+			  << "Serilization Class Member test: (" << result << ")" << std::endl
+			  << "--------------------------------------------------" << std::endl;
+
+	std::cout << "--------------------------------------------------" << std::endl;
+	result = Tester::DeserilizationDefault() ? "Passed" : "Failed";
 	std::cout << std::endl 
 			  << "--------------------------------------------------" << std::endl
 			  << "Serilization Class Member test: (" << result << ")" << std::endl
