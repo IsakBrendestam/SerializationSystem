@@ -59,10 +59,30 @@ private:
 };
 SERIALIZEBLE(PersonPair);
 
+class PersonCatalouge
+{
+friend class Tester;
+
+public:
+	PersonCatalouge() = default;
+	~PersonCatalouge() = default;
+
+	inline void AddPerson(const Person& p, unsigned int index) { if (index < CAPACITY) m_catalouge[index] = p; }
+
+	INTROSPECTION(PersonCatalouge,
+		MEMBER(m_catalouge)
+	);
+
+private:
+	static const unsigned int CAPACITY = 2;
+	Person m_catalouge[CAPACITY];
+};
+SERIALIZEBLE(PersonCatalouge);
+
 Person p1("Temp", 9, "Karlskrona"),
 	   p2("Temp2", 34, "Karlskrona");
 
-std::stringstream ssTest1, ssTest2;
+std::stringstream ssTest1, ssTest2, ssTest3;
 
 class Tester
 {
@@ -111,6 +131,34 @@ public:
 		return ssTest2.str() == ssValid.str();
 	}
 
+	static inline bool SerilizationArray()
+	{
+		std::stringstream ssValid;
+		PersonCatalouge pc;
+		pc.AddPerson(p1, 0);
+		pc.AddPerson(p2, 1);
+
+		for (auto& data : PersonCatalouge::GetData())
+			data->Serialize(ssTest3, &pc);
+
+		ssValid << "m_catalouge:[\n"
+				<< "{\n"
+				<< "m_name:" << p1.m_name << "\n"
+				<< "m_age:"	 << p1.m_age  << "\n"
+				<< "m_city:" << p1.m_city << "\n"
+				<< "}\n"
+				<< "{\n"
+				<< "m_name:" << p2.m_name << "\n"
+				<< "m_age:"	 << p2.m_age  << "\n"
+				<< "m_city:" << p2.m_city << "\n"
+				<< "}\n"
+				<< "]\n";
+
+		std::cout << ssTest3.str();
+
+		return ssTest3.str() == ssValid.str();
+	}
+
 	static inline bool DeserilizationDefault()
 	{
 		Person p3;
@@ -140,10 +188,6 @@ bool Test::RunTests()
 {
     std::string result;
 
-	/*
-	result = Tester::GetInformation() ? "Passed" : "Failed";
-	std::cout << "Getting information test: " << result << std::endl;
-	*/
 
 	std::cout << "--------------------------------------------------"	<< std::endl
 			  << "Serilization Default test:"							<< std::endl
@@ -159,6 +203,16 @@ bool Test::RunTests()
 			  << "Serilization Class Member test:"						<< std::endl
 			  << "--------------------------------------------------"	<< std::endl;
 	result = Tester::SerilizationClassMember() ? "Passed" : "Failed";
+	std::cout << std::endl 
+			  << " ** Result: (" << result << ") **" << std::endl
+			  << "--------------------------------------------------" << std::endl
+			  << std::endl;
+
+
+	std::cout << "--------------------------------------------------"	<< std::endl
+			  << "Serilization Array test:"								<< std::endl
+			  << "--------------------------------------------------"	<< std::endl;
+	result = Tester::SerilizationArray() ? "Passed" : "Failed";
 	std::cout << std::endl 
 			  << " ** Result: (" << result << ") **" << std::endl
 			  << "--------------------------------------------------" << std::endl
@@ -183,6 +237,7 @@ bool Test::RunTests()
 			  << " ** Result: (" << result << ") **" << std::endl
 			  << "--------------------------------------------------" << std::endl
 			  << std::endl;
+
 
     return false;
 }

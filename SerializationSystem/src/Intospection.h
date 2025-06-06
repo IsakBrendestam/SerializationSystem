@@ -49,6 +49,58 @@ private:
 	const char const* m_name;
 };
 
+// TODO: Thorough inspection of this class is needed
+
+template<typename TClass, typename TMember, size_t N>
+struct member_t<TClass, TMember[N]> : member_interface
+{
+	using array_type = TMember[N];
+
+	member_t(char const* name, TMember (TClass::*ptr)[N])
+		: m_name(name), m_ptr(ptr) {}
+
+	char const* Name() const override { return m_name; }
+
+	void Serialize(std::ostream& out, const void* instance) const override
+	{
+		const TClass* obj = static_cast<const TClass*>(instance);
+		out << m_name << ":[\n";
+		for (size_t i = 0; i < N; ++i)
+		{
+			out << (*obj.*m_ptr)[i] << "\n";
+		}
+		out << "]\n";
+	}
+
+	void Deserialize(std::istream& in, void* instance) const override
+	{
+		TClass* obj = static_cast<TClass*>(instance);
+		std::string label;
+		if (!std::getline(in, label, ':') || label != m_name)
+			return;
+
+		std::string openBracket;
+		std::getline(in, openBracket);
+		if (openBracket != "[")
+			return;
+
+		for (size_t i = 0; i < N; ++i)
+		{
+			in >> (*obj.*m_ptr)[i];
+			in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		}
+
+		std::string closeBracket;
+		std::getline(in, closeBracket); // Expect "]"
+	}
+
+private:
+	TMember (TClass::* m_ptr)[N];
+	const char* m_name;
+};
+
+
+
 template<typename TClass, typename TMember>
 std::unique_ptr<member_interface> member_instance(char const* name, TMember TClass::* member)
 {
