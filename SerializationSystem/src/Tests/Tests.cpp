@@ -69,6 +69,14 @@ public:
 
 	inline void AddPerson(const Person& p, unsigned int index) { if (index < CAPACITY) m_catalouge[index] = p; }
 
+	inline bool operator==(const PersonCatalouge& other) const
+	{
+		for (int i = 0; i < CAPACITY; i++)
+			if (m_catalouge[i] != other.m_catalouge[i])
+				return false;
+		return true;
+	}
+
 	INTROSPECTION(PersonCatalouge,
 		MEMBER(m_catalouge)
 	);
@@ -81,6 +89,8 @@ SERIALIZEBLE(PersonCatalouge);
 
 Person p1("Temp", 9, "Karlskrona"),
 	   p2("Temp2", 34, "Karlskrona");
+
+PersonCatalouge pc;
 
 std::stringstream ssTest1, ssTest2, ssTest3;
 
@@ -134,7 +144,6 @@ public:
 	static inline bool SerilizationArray()
 	{
 		std::stringstream ssValid;
-		PersonCatalouge pc;
 		pc.AddPerson(p1, 0);
 		pc.AddPerson(p2, 1);
 
@@ -172,7 +181,6 @@ public:
 
 	static inline bool DeserilizationClassMember()
 	{
-		std::stringstream ssValid;
 		PersonPair pp;
 		for (auto& data : PersonPair::GetData())
 			data->Deserialize(ssTest2, &pp);
@@ -182,62 +190,110 @@ public:
 		return pp == PersonPair(p1, p2);
 	}
 
+	static inline bool DeserilizationArray()
+	{
+		PersonCatalouge pcTest;
+		for (auto& data : PersonCatalouge::GetData())
+			data->Deserialize(ssTest3, &pcTest);
+
+		std::cout << pc << std::endl;
+		return pcTest == pc;
+	}
+
 };
 
 bool Test::RunTests()
 {
     std::string result;
+	unsigned int counter = 0,
+				 counterPass = 0;
+
+	{
+		counter++;
+		std::cout << "--------------------------------------------------"	<< std::endl
+				  << "Serilization Default test:"							<< std::endl
+				  << "--------------------------------------------------"	<< std::endl;
+		result = Tester::SerilizationDefault() ? "Passed" : "Failed";
+		if (result == "Passed") counterPass++;
+		std::cout << std::endl 
+				  << " ** Result: (" << result << ") **" << std::endl
+				  << "--------------------------------------------------" << std::endl
+				  << std::endl;
+	}
+
+	{
+		counter++;
+		std::cout << "--------------------------------------------------"	<< std::endl
+				  << "Serilization Class Member test:"						<< std::endl
+				  << "--------------------------------------------------"	<< std::endl;
+		result = Tester::SerilizationClassMember() ? "Passed" : "Failed";
+		if (result == "Passed") counterPass++;
+		std::cout << std::endl 
+				  << " ** Result: (" << result << ") **" << std::endl
+				  << "--------------------------------------------------" << std::endl
+				  << std::endl;
+	}
+
+	{
+		counter++;
+		std::cout << "--------------------------------------------------"	<< std::endl
+				  << "Serilization Array test:"								<< std::endl
+				  << "--------------------------------------------------"	<< std::endl;
+		result = Tester::SerilizationArray() ? "Passed" : "Failed";
+		if (result == "Passed") counterPass++;
+		std::cout << std::endl 
+				  << " ** Result: (" << result << ") **" << std::endl
+				  << "--------------------------------------------------" << std::endl
+				  << std::endl;
+	}
+
+	{
+		counter++;
+		std::cout << "--------------------------------------------------"	<< std::endl
+				  << "Deserilization Default test:"							<< std::endl
+				  << "--------------------------------------------------"	<< std::endl;
+		result = Tester::DeserilizationDefault() ? "Passed" : "Failed";
+		if (result == "Passed") counterPass++;
+		std::cout << std::endl 
+				  << " ** Result: (" << result << ") **" << std::endl
+				  << "--------------------------------------------------" << std::endl
+				  << std::endl;
+	}
+
+	{
+		counter++;
+		std::cout << "--------------------------------------------------"	<< std::endl
+				  << "Deserilization Class Member test:"					<< std::endl
+				  << "--------------------------------------------------"	<< std::endl;
+		result = Tester::DeserilizationClassMember() ? "Passed" : "Failed";
+		if (result == "Passed") counterPass++;
+		std::cout << std::endl 
+				  << " ** Result: (" << result << ") **" << std::endl
+				  << "--------------------------------------------------" << std::endl
+				  << std::endl;
+	}
+
+	{
+		counter++;
+		std::cout << "--------------------------------------------------"	<< std::endl
+				  << "Deserilization Array test:"							<< std::endl
+				  << "--------------------------------------------------"	<< std::endl;
+		result = Tester::DeserilizationArray() ? "Passed" : "Failed";
+		if (result == "Passed") counterPass++;
+		std::cout << std::endl 
+				  << " ** Result: (" << result << ") **" << std::endl
+				  << "--------------------------------------------------" << std::endl
+				  << std::endl;
+	}
 
 
-	std::cout << "--------------------------------------------------"	<< std::endl
-			  << "Serilization Default test:"							<< std::endl
-			  << "--------------------------------------------------"	<< std::endl;
-	result = Tester::SerilizationDefault() ? "Passed" : "Failed";
-	std::cout << std::endl 
-			  << " ** Result: (" << result << ") **" << std::endl
-			  << "--------------------------------------------------" << std::endl
-			  << std::endl;
 
-
-	std::cout << "--------------------------------------------------"	<< std::endl
-			  << "Serilization Class Member test:"						<< std::endl
-			  << "--------------------------------------------------"	<< std::endl;
-	result = Tester::SerilizationClassMember() ? "Passed" : "Failed";
-	std::cout << std::endl 
-			  << " ** Result: (" << result << ") **" << std::endl
-			  << "--------------------------------------------------" << std::endl
-			  << std::endl;
-
-
-	std::cout << "--------------------------------------------------"	<< std::endl
-			  << "Serilization Array test:"								<< std::endl
-			  << "--------------------------------------------------"	<< std::endl;
-	result = Tester::SerilizationArray() ? "Passed" : "Failed";
-	std::cout << std::endl 
-			  << " ** Result: (" << result << ") **" << std::endl
-			  << "--------------------------------------------------" << std::endl
-			  << std::endl;
-
-
-	std::cout << "--------------------------------------------------"	<< std::endl
-			  << "Deserilization Default test:"							<< std::endl
-			  << "--------------------------------------------------"	<< std::endl;
-	result = Tester::DeserilizationDefault() ? "Passed" : "Failed";
-	std::cout << std::endl 
-			  << " ** Result: (" << result << ") **" << std::endl
-			  << "--------------------------------------------------" << std::endl
-			  << std::endl;
-
-
-	std::cout << "--------------------------------------------------"	<< std::endl
-			  << "Deserilization Class Member test:"					<< std::endl
-			  << "--------------------------------------------------"	<< std::endl;
-	result = Tester::DeserilizationClassMember() ? "Passed" : "Failed";
-	std::cout << std::endl 
-			  << " ** Result: (" << result << ") **" << std::endl
-			  << "--------------------------------------------------" << std::endl
-			  << std::endl;
-
+	std::cout << "--------------------------------------------------" << std::endl
+			  << "**************************************************" << std::endl
+			  << "Passed: " << counterPass << "/" << counter		  << std::endl
+			  << "**************************************************" << std::endl
+			  << "--------------------------------------------------" << std::endl;
+			
 
     return false;
 }
