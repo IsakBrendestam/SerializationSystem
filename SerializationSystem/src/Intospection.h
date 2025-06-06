@@ -50,7 +50,6 @@ private:
 };
 
 // TODO: Thorough inspection of this class is needed
-
 template<typename TClass, typename TMember, size_t N>
 struct member_t<TClass, TMember[N]> : member_interface
 {
@@ -99,6 +98,46 @@ private:
 	const char* m_name;
 };
 
+
+template<typename TClass, typename TMember>
+struct member_t<TClass, TMember*> : member_interface
+{
+	member_t(char const* name, TMember* TClass::*ptr) :
+		m_name(name), m_ptr(ptr){}
+
+	inline char const* Name() const override { return m_name; }
+
+	inline void Serialize(std::ostream& out, const void* instance) const override
+	{
+		/*
+		const TClass* obj = static_cast<const TClass*>(instance);
+		const TMember& value = *obj->*m_ptr;
+		out << m_name << ":" << value << "\n"; // NOTE: This format can be changed
+		*/
+	}
+
+	inline void Deserialize(std::istream& in, void* instance) const override
+	{
+		/*
+		TClass* obj = static_cast<TClass*>(instance);
+		std::string label;
+		if (!std::getline(in, label, ':'))
+			return;
+
+		// Optional: trim whitespace or validate `label == m_name`
+
+		TMember* value = new TMember();
+		in >> *value;
+		in.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // skip to next line
+
+		obj->*m_ptr = value;
+		*/
+	}
+
+private:
+	TMember* TClass::* m_ptr;
+	const char const* m_name;
+};
 
 
 template<typename TClass, typename TMember>

@@ -87,6 +87,26 @@ private:
 };
 SERIALIZEBLE(PersonCatalouge);
 
+class PersonPtr
+{
+friend class Tester;
+
+public:
+	PersonPtr() = default;
+	PersonPtr(Person p) : m_ptr(new Person(p)) {};
+
+	inline bool operator==(const PersonPtr& other) const { return *m_ptr == *other.m_ptr; }
+
+	INTROSPECTION(PersonPtr,
+		MEMBER(m_ptr)
+	);
+
+private:
+	Person* m_ptr;
+
+};
+SERIALIZEBLE(PersonPtr);
+
 Person p1("Temp", 9, "Karlskrona"),
 	   p2("Temp2", 34, "Karlskrona");
 
