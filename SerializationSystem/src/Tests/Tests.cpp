@@ -14,6 +14,13 @@ public:
     Person(const std::string& name, int age, const std::string& city) :
         m_name(name), m_age(age), m_city(city) {};
 
+	inline bool operator==(const Person& other) const 
+	{
+		return m_name == other.m_name &&
+			   m_age == other.m_age &&
+			   m_city == other.m_city;
+	}
+
     INTROSPECTION(Person,
         MEMBER(m_name)
         MEMBER(m_age)
@@ -32,22 +39,28 @@ class PersonPair
 friend class Tester;
 
 public:
+	PersonPair() = default;
 	PersonPair(const Person& p1, const Person& p2) :
 		m_p1(p1), m_p2(p2) {}
+
+	inline bool operator==(const PersonPair& other) const
+	{
+		return m_p1 == other.m_p1 &&
+			   m_p2 == other.m_p2;
+	}
 
 	INTROSPECTION(PersonPair,
 		MEMBER(m_p1)
 		MEMBER(m_p2)
 	);
 
-
 private:
 	Person m_p1, m_p2;
 };
 SERIALIZEBLE(PersonPair);
 
-Person p1("Isak", 24, "Karlskrona"),
-	   p2("Matilda", 23, "Karlskrona");
+Person p1("Temp", 9, "Karlskrona"),
+	   p2("Temp2", 34, "Karlskrona");
 
 std::stringstream ssTest1, ssTest2;
 
@@ -84,12 +97,12 @@ public:
 
 		ssValid << "m_p1:{\n"
 				<< "m_name:" << p1.m_name << "\n"
-				<< "m_age:" << p1.m_age << "\n"
+				<< "m_age:"  << p1.m_age  << "\n"
 				<< "m_city:" << p1.m_city << "\n"
 				<< "}\n"
 				<< "m_p2:{\n"
 				<< "m_name:" << p2.m_name << "\n"
-				<< "m_age:" << p2.m_age << "\n"
+				<< "m_age:"  << p2.m_age  << "\n"
 				<< "m_city:" << p2.m_city << "\n"
 				<< "}\n";
 
@@ -106,12 +119,17 @@ public:
 
 		std::cout << p3 << std::endl;
 
-		bool pass = true;
-		p3.m_name != p1.m_name	? pass = false :
-		p3.m_age  != p1.m_age	? pass = false :
-		p3.m_city != p1.m_city	? pass = false : pass = true;
+		return p3 == p1;
+	}
 
-		return pass;
+	static inline bool DeserilizationClassMember()
+	{
+		std::stringstream ssValid;
+		PersonPair pp;
+		for (auto& data : PersonPair::GetData())
+			data->Deserialize(ssTest2, &pp);
+
+		return pp == PersonPair(p1, p2);
 	}
 
 };
@@ -125,26 +143,32 @@ bool Test::RunTests()
 	std::cout << "Getting information test: " << result << std::endl;
 	*/
 
-	std::cout << "--------------------------------------------------" << std::endl;
+	std::cout << "--------------------------------------------------"	<< std::endl
+			  << "Serilization Default test:"							<< std::endl
+			  << "--------------------------------------------------"	<< std::endl;
 	result = Tester::SerilizationDefault() ? "Passed" : "Failed";
 	std::cout << std::endl 
+			  << " ** Result: (" << result << ") **" << std::endl
 			  << "--------------------------------------------------" << std::endl
-			  << "Serilization Default test: (" << result << ")" << std::endl
-			  << "--------------------------------------------------" << std::endl;
+			  << std::endl;
 
-	std::cout << "--------------------------------------------------" << std::endl;
+	std::cout << "--------------------------------------------------"	<< std::endl
+			  << "Serilization Class Member test:"						<< std::endl
+			  << "--------------------------------------------------"	<< std::endl;
 	result = Tester::SerilizationClassMember() ? "Passed" : "Failed";
 	std::cout << std::endl 
+			  << " ** Result: (" << result << ") **" << std::endl
 			  << "--------------------------------------------------" << std::endl
-			  << "Serilization Class Member test: (" << result << ")" << std::endl
-			  << "--------------------------------------------------" << std::endl;
+			  << std::endl;
 
-	std::cout << "--------------------------------------------------" << std::endl;
+	std::cout << "--------------------------------------------------"	<< std::endl
+			  << "Serilization Deserilization Default test:"			<< std::endl
+			  << "--------------------------------------------------"	<< std::endl;
 	result = Tester::DeserilizationDefault() ? "Passed" : "Failed";
 	std::cout << std::endl 
+			  << " ** Result: (" << result << ") **" << std::endl
 			  << "--------------------------------------------------" << std::endl
-			  << "Serilization Class Member test: (" << result << ")" << std::endl
-			  << "--------------------------------------------------" << std::endl;
+			  << std::endl;
 
     return false;
 }
