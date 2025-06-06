@@ -129,6 +129,8 @@ public:
 		for (auto& data : PersonPair::GetData())
 			data->Deserialize(ssTest2, &pp);
 
+		std::cout << pp << std::endl;
+
 		return pp == PersonPair(p1, p2);
 	}
 
@@ -152,6 +154,7 @@ bool Test::RunTests()
 			  << "--------------------------------------------------" << std::endl
 			  << std::endl;
 
+
 	std::cout << "--------------------------------------------------"	<< std::endl
 			  << "Serilization Class Member test:"						<< std::endl
 			  << "--------------------------------------------------"	<< std::endl;
@@ -161,10 +164,21 @@ bool Test::RunTests()
 			  << "--------------------------------------------------" << std::endl
 			  << std::endl;
 
+
 	std::cout << "--------------------------------------------------"	<< std::endl
-			  << "Serilization Deserilization Default test:"			<< std::endl
+			  << "Deserilization Default test:"							<< std::endl
 			  << "--------------------------------------------------"	<< std::endl;
 	result = Tester::DeserilizationDefault() ? "Passed" : "Failed";
+	std::cout << std::endl 
+			  << " ** Result: (" << result << ") **" << std::endl
+			  << "--------------------------------------------------" << std::endl
+			  << std::endl;
+
+
+	std::cout << "--------------------------------------------------"	<< std::endl
+			  << "Deserilization Class Member test:"					<< std::endl
+			  << "--------------------------------------------------"	<< std::endl;
+	result = Tester::DeserilizationClassMember() ? "Passed" : "Failed";
 	std::cout << std::endl 
 			  << " ** Result: (" << result << ") **" << std::endl
 			  << "--------------------------------------------------" << std::endl
