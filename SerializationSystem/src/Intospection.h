@@ -3,6 +3,8 @@
 #include <iterator>
 #include <cstddef>
 #include <any>
+#include <memory>
+#include <limits>
 
 struct member_interface
 {
