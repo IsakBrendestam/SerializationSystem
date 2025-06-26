@@ -111,29 +111,27 @@ struct member_t<TClass, TMember*> : member_interface
 
 	inline void Serialize(std::ostream& out, const void* instance) const override
 	{
-		/*
 		const TClass* obj = static_cast<const TClass*>(instance);
-		const TMember& value = *obj->*m_ptr;
-		out << m_name << ":" << value << "\n"; // NOTE: This format can be changed
-		*/
+		const TMember* ptr = obj->*m_ptr;
+		out << *ptr << "\n";
 	}
 
 	inline void Deserialize(std::istream& in, void* instance) const override
 	{
-		/*
 		TClass* obj = static_cast<TClass*>(instance);
 		std::string label;
-		if (!std::getline(in, label, ':'))
+		if (!std::getline(in, label, ':') || label != m_name)
 			return;
 
-		// Optional: trim whitespace or validate `label == m_name`
+		// Free old memory if needed
+		delete (obj->*m_ptr);
 
-		TMember* value = new TMember();
-		in >> *value;
-		in.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // skip to next line
+		// Allocate and read
+		TMember* buffer = new TMember();
+		in >> *buffer;
+		in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-		obj->*m_ptr = value;
-		*/
+		obj->*m_ptr = buffer;
 	}
 
 private:

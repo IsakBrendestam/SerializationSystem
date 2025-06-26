@@ -92,10 +92,14 @@ class PersonPtr
 friend class Tester;
 
 public:
-	PersonPtr() = default;
+	PersonPtr() : m_ptr(new Person()) {};
 	PersonPtr(Person p) : m_ptr(new Person(p)) {};
+	PersonPtr(const PersonPtr& other) { m_ptr = new Person(*other.m_ptr); }
+	PersonPtr(const PersonPtr&& other) { m_ptr = new Person(*other.m_ptr); }
+	~PersonPtr() { delete m_ptr; }
 
 	inline bool operator==(const PersonPtr& other) const { return *m_ptr == *other.m_ptr; }
+
 
 	INTROSPECTION(PersonPtr,
 		MEMBER(m_ptr)
@@ -112,7 +116,7 @@ Person p1("Temp", 9, "Karlskrona"),
 
 PersonCatalouge pc;
 
-std::stringstream ssTest1, ssTest2, ssTest3;
+std::stringstream ssTest1, ssTest2, ssTest3, ssTest4;
 
 class Tester
 {
@@ -188,6 +192,24 @@ public:
 		return ssTest3.str() == ssValid.str();
 	}
 
+	static inline bool SerilizationPtr()
+	{
+		std::stringstream ssValid;
+		PersonPtr pPtr(p1);
+		for (auto& data : PersonPtr::GetData())
+			data->Serialize(ssTest4, &pPtr);
+
+		ssValid << "{\n"
+				<< "m_name:" << p1.m_name << "\n"
+				<< "m_age:"  << p1.m_age  << "\n"
+				<< "m_city:" << p1.m_city << "\n"
+				<< "}\n";
+
+		std::cout << ssTest4.str();
+
+		return ssTest4.str() == ssValid.str();
+	}
+
 	static inline bool DeserilizationDefault()
 	{
 		Person p3;
@@ -218,6 +240,17 @@ public:
 
 		std::cout << pc << std::endl;
 		return pcTest == pc;
+	}
+
+	static inline bool DeserilizationPtr()
+	{
+		PersonPtr pPtr;
+		for (auto& data : PersonPtr::GetData())
+			data->Deserialize(ssTest4, &pPtr);
+
+		std::cout << pPtr << std::endl;
+
+		return pPtr == PersonPtr(p1);
 	}
 
 };
@@ -270,6 +303,19 @@ bool Test::RunTests()
 	{
 		counter++;
 		std::cout << "--------------------------------------------------"	<< std::endl
+				  << "Serilization Pointer test:"								<< std::endl
+				  << "--------------------------------------------------"	<< std::endl;
+		result = Tester::SerilizationPtr() ? "Passed" : "Failed";
+		if (result == "Passed") counterPass++;
+		std::cout << std::endl 
+				  << " ** Result: (" << result << ") **" << std::endl
+				  << "--------------------------------------------------" << std::endl
+				  << std::endl;
+	}
+
+	{
+		counter++;
+		std::cout << "--------------------------------------------------"	<< std::endl
 				  << "Deserilization Default test:"							<< std::endl
 				  << "--------------------------------------------------"	<< std::endl;
 		result = Tester::DeserilizationDefault() ? "Passed" : "Failed";
@@ -306,6 +352,18 @@ bool Test::RunTests()
 				  << std::endl;
 	}
 
+	{
+		counter++;
+		std::cout << "--------------------------------------------------"	<< std::endl
+				  << "Deserilization Pointer test:"							<< std::endl
+				  << "--------------------------------------------------"	<< std::endl;
+		result = Tester::DeserilizationPtr() ? "Passed" : "Failed";
+		if (result == "Passed") counterPass++;
+		std::cout << std::endl 
+				  << " ** Result: (" << result << ") **" << std::endl
+				  << "--------------------------------------------------" << std::endl
+				  << std::endl;
+	}
 
 
 	std::cout << "--------------------------------------------------" << std::endl
