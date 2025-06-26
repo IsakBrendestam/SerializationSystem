@@ -15,6 +15,9 @@ struct member_interface
 	virtual void Deserialize(std::istream& in, void* instance) const = 0;
 };
 
+/*
+*		Default Member
+*/
 template<typename TClass, typename TMember>
 struct member_t : member_interface
 {
@@ -51,6 +54,9 @@ private:
 	const char const* m_name;
 };
 
+/*
+*		Array Member
+*/
 // TODO: Thorough inspection of this class is needed
 template<typename TClass, typename TMember, size_t N>
 struct member_t<TClass, TMember[N]> : member_interface
@@ -101,6 +107,9 @@ private:
 };
 
 
+/*
+*		Pointer Member
+*/
 template<typename TClass, typename TMember>
 struct member_t<TClass, TMember*> : member_interface
 {
@@ -194,11 +203,12 @@ private:
 			members														\
 		};																\
 		return member_holder(data, sizeof(data)/sizeof(data[0]));		\
-	}																	\
+	}
 
 
-#define MEMBER(name) \
+#define MEMBER(name)													\
 	member_instance(#name, &self_t::name),
+
 
 #define SERIALIZEBLE(type)												\
 	std::ostream& operator<< (std::ostream& out, const type &obj)		\
@@ -222,5 +232,5 @@ private:
 			member->Deserialize(in, &obj);								\
 																		\
 		return in;														\
-	}																	\
+	}
 
