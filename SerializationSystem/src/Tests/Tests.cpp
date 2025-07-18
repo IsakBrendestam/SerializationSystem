@@ -57,7 +57,6 @@ public:
 private:
 	Person m_p1, m_p2;
 };
-SERIALIZEBLE(PersonPair);
 
 class PersonCatalouge
 {
@@ -85,7 +84,6 @@ private:
 	static const unsigned int CAPACITY = 2;
 	Person m_catalouge[CAPACITY];
 };
-SERIALIZEBLE(PersonCatalouge);
 
 class PersonPtr
 {
@@ -109,7 +107,6 @@ private:
 	Person* m_ptr;
 
 };
-SERIALIZEBLE(PersonPtr);
 
 Person p1("Temp", 9, "Karlskrona"),
 	   p2("Temp2", 34, "Karlskrona");

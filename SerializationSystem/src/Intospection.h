@@ -203,15 +203,9 @@ private:
 			members														\
 		};																\
 		return member_holder(data, sizeof(data)/sizeof(data[0]));		\
-	}
-
-
-#define MEMBER(name)													\
-	member_instance(#name, &self_t::name),
-
-
-#define SERIALIZEBLE(type)												\
-	std::ostream& operator<< (std::ostream& out, const type &obj)		\
+	}																	\
+																		\
+	friend std::ostream& operator<< (std::ostream& out, const type &obj)		\
 	{																	\
 		out << "{\n";													\
 		for (auto& data : type::GetData())								\
@@ -219,7 +213,7 @@ private:
 		return out << "}";												\
 	}																	\
 																		\
-	std::istream& operator>>(std::istream& in, type& obj)				\
+	friend std::istream& operator>>(std::istream& in, type& obj)				\
 	{																	\
 		std::string openBrace;											\
 		std::getline(in, openBrace);									\
@@ -233,4 +227,8 @@ private:
 																		\
 		return in;														\
 	}
+
+
+#define MEMBER(name)													\
+	member_instance(#name, &self_t::name),
 
