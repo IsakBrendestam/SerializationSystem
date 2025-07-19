@@ -32,7 +32,6 @@ private:
     int m_age = -1;
     std::string m_city = "";
 };
-SERIALIZEBLE(Person);
 
 class PersonPair
 {
